@@ -1,0 +1,216 @@
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="card card-table">
+            <div class="card-header">
+                <a href="/business/add" type="button" class="btn btn-primary btn-bold">
+                    <i class="fa fa-plus bigger-110 blue"></i>
+                    新增商家
+                </a>
+            </div>
+            <div class="card-body">
+                <div class='table-responsive'>
+                    <table class="table table-bordered">
+                        <thead>
+                        <th class="text-nowrap">商家ID</th>
+                        <th class="text-nowrap">商家名称</th>
+                        <th class="text-nowrap">所属项目</th>
+                        <th class="text-nowrap">所属业态</th>
+                        <th class="text-nowrap">联系人</th>
+                        <th class="text-nowrap">联系电话</th>
+                        <th class="text-nowrap">商家状态</th>
+                        <th class="text-nowrap">创建时间</th>
+                        <th class="text-nowrap">操作</th>
+                        </thead>
+                        <tbody>
+
+                        {{foreach($list as $v)}}
+                        <tr>
+                            <td class="text-nowrap">{{$v['id']}}</td>
+                            <td class="text-nowrap">{{$v['name']}}</td>
+                            <td class="text-nowrap">{{$v['department_id']}}</td>
+                            <td class="text-nowrap">{{$v['industry_id']}}</td>
+                            <td class="text-nowrap">{{$v['contacts']}}</td>
+                            <td class="text-nowrap">{{$v['phone']}}</td>
+                            <td class="text-nowrap">
+                                {{$s=$v['state']==1?'btn-success':'btn-danger'}}
+                                <a href="javascript:;" class="btn {{$s}} btn-sm c_state" role="button" sid='{{$v['id']}}' zid="{{$v['state']}}" id="state{{$v['id']}}">
+                                    {{echo $v['state']==1?'在营':'闭店'}}
+                                </a>
+                            </td>
+                            <td class="text-nowrap">{{echo !empty($v['created_at'])?date('Y-m-d H:i',$v['created_at']):'--'}}</td>
+                            <td class="text-nowrap">
+                                <div class="btn-group" role="group" aria-label="Basic example">
+
+                                    <a href="/business/edit?id={{$v['id']}}" class="btn btn-secondary  btn-sm" data-rel="tooltip" title="修改" data-original-title="Edit">
+                                        <i class="ace-icon fa fa-pencil-square-o bigger-120"></i> 修改
+                                    </a>
+                                    <a href="/business/edit?id={{$v['id']}}" class="btn btn-secondary  btn-sm" data-rel="tooltip" data-original-title="Edit">
+                                        <i class="ace-icon fa fa-pencil-square-o bigger-120"></i> 业态管理
+                                    </a>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {{/foreach}}
+                        <tr>
+                            <td colspan="7">
+                                <ul class="pagination">
+                                    {{$page}}
+                                </ul>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal" tabindex="-1" id="wxcfgModal">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">公众号密钥配置</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body d-flex flex-column align-content-center">
+
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">公众号</label>
+                    <div class="col-sm-9 gzh_name"></div>
+                </div>
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">APPID</label>
+                    <div class="col-sm-9 appid"></div>
+                </div>
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">SECRET</label>
+                    <div class="col-sm-9 secret"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="craete_gzh_menu">生成公众号菜单</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<block name="content">
+    <script>
+
+        $(".c_state").on('click',function () {
+            var id = $(this).attr('sid');
+            var state =$(this).attr('zid');
+
+            if(state==1){
+                var state =0;
+            }else{
+                var state =1;
+            }
+            $.ajax({
+                'type': 'post',
+                'url': '/business/state_edit',
+                'data': {'id':id,'state':state},
+                'dataType': 'json',
+                'success': function (ret) {
+                    if (ret.code == 1) {
+
+                        if(ret.data.state==1){
+                            $("#state"+ret.data.id).attr("class","btn btn-success btn-sm c_state");
+                        }else{
+                            $("#state"+ret.data.id).attr("class","btn btn-danger btn-sm c_state");
+                        }
+
+                        $("#state"+ret.data.id).text(ret.data.state_str);
+                        $("#state"+ret.data.id).attr('zid',ret.data.state);
+                        alertify.success(ret.code_str);
+                    } else {
+                        alertify.error(ret.code_str);
+                    }
+                    $('#submit').text("保存管理员")
+                }, 'error': function (err) {
+                    console.log(err);
+                    $('#submit').text("保存管理员")
+                }
+            });
+        });
+
+        $('.showWx').on('click',function () {
+
+            $('#wxcfgModal').modal("show")
+            $('#wxcfgModal .modal-body .appid').html($(this).data('appid'))
+            $('#wxcfgModal .modal-body .secret').html($(this).data('secret'))
+            $('#wxcfgModal .modal-body .gzh_name').html($(this).data('gzh_name'))
+
+        })
+        $('#craete_gzh_menu').on('click',function () {
+
+            $('#wxcfgModal').modal("hide")
+            var gname = $('#wxcfgModal .modal-body .gzh_name').html()
+
+            alertify.confirm().setting({
+                'labels':{ok:'确认生成', cancel:'关闭'},
+                'title':"提示",
+                'message': '确定要生成公众号的菜单吗？确定后，将会自动更新微信公众号['+gname+']的菜单' ,
+                'onok': function(){
+                    $.ajax({
+                        'type':'post',
+                        'url':'/project/gzh_menu_create',
+                        'data':{'appid':$('#wxcfgModal .modal-body .appid').html()},
+                        'dataType':'json',
+                        'success':function (ret) {
+                            if(ret.code == 1){
+                                alertify.success(ret.code_str,3,function () {
+                                    location.reload()
+                                })
+                            }else{
+                                alertify.error(ret.code_str)
+                            }
+                        },'error':function (err) {
+                            alertify.error("网络异常，请稍后再试")
+                        }
+                    });
+                }
+            }).show();
+        })
+
+        $('.del').on('click',function () {
+
+            var $id = $(this).data('uid');
+            alertify.confirm().setting({
+                'labels':{ok:'确认删除', cancel:'关闭'},
+                'title':"提示",
+                'message': '确定要删除吗？删除后不可恢复' ,
+                'onok': function(){
+                    $.ajax({
+                        'type':'post',
+                        'url':'/admin/admin_del',
+                        'data':{'uid':$id},
+                        'dataType':'json',
+                        'success':function (ret) {
+                            if(ret.code == 1){
+                                alertify.success(ret.code_str,3,function () {
+                                    location.reload()
+                                })
+                            }else{
+                                alertify.error(ret.code_str)
+                            }
+                        },'error':function (err) {
+                            alertify.error("网络异常，请稍后再试")
+                        }
+                    });
+                }
+            }).show();
+
+        })
+    </script>
+</block>

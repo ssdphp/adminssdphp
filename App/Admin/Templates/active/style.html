@@ -1,0 +1,32 @@
+<style>
+    .table-p{margin: 0;line-height: 1.3}
+    .flex{display: flex;}
+</style>
+<div class="row">
+    <div class="col-sm-12">
+
+    </div>
+</div>
+
+<block name="content">
+    <script src="/admin/plugins/laydate/laydate.js"></script>
+    <script>
+        $(function (){
+            //日期时间范围
+            laydate.render({
+                elem: '#showtime'
+                ,type: 'datetime'
+                ,range: true
+            });
+            //日期时间范围
+            laydate.render({
+                elem: '#runtime'
+                ,type: 'datetime'
+                ,range: true
+            });
+        })
+
+    </script>
+</block>
+
+

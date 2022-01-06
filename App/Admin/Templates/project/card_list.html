@@ -1,0 +1,151 @@
+<div class="am-g">
+    <div class="am-u-sm-12 am-u-md-6  am-padding-bottom">
+
+        <div class="am-btn-toolbar am-form-inline">
+
+            <div class="am-btn-group am-btn-group-xs">
+                <a href="/system/card_add?pid={$_GET['pid']}" type="button"  class="am-btn am-radius am-btn-default">
+                    <span class="am-icon-plus"></span> 新增
+                </a>
+                <button type="button" onclick="window.history.back()"  class="am-btn am-radius am-btn-warning">
+                    < 返回
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="am-g">
+    <div class="am-u-sm-12">
+        <form class="am-form" onsubmit="return false;">
+            <div class="am-scrollable-horizontal">
+                <table class="am-table am-text-nowrap am-table-bordered am-table-striped am-table-hover table-main">
+                <thead>
+                <tr>
+                    <th colspan="6">
+                        当前业务：
+                        <img width="20" src="{$pinfo['icon']}" alt="" align="center">
+                        <span style="font-weight: 400;color: red;vertical-align: bottom">{$pinfo['title']}</span>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="table-title">ID</th>
+
+                    <th class="table-set">业务使用状态</th>
+                    <th class="table-title">卡密名称</th>
+                    <th class="table-title">卡密</th>
+                    <th class="table-title">卡密使用状态</th>
+                    <th class="table-title">登录地址</th>
+                    <th class="table-set">剩余数量</th>
+                    <th class="table-set">使用最小数量</th>
+                    <th class="table-set">订单处理系统</th>
+                    <th class="table-set">管理</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach($list->items as $v)}
+                <tr id="tr-{$v['id']}">
+                    <td>{$v['id']}</td>
+                    <td><a href="javascript:;" class="use_status am-btn am-btn-xs am-radius am-btn-{echo $v['use_status']==0?'warning':'primary'}" _id="{$v['id']}" status="{$v['use_status']}">{echo $v['use_status']==0?"未使用":"使用中"}</a></td>
+                    <td>{$v['title']}</td>
+                    <td>{$v['card_no']}</td>
+                    <td>{echo $v['status']==1?"<span style=\"color:green;\">正常</span>":"<span style=\"color:red;\">已停用</span>"}</td>
+                    {if($v['shua_pingtai']=='id5299')}
+                    <td><a target="_blank" href="http://{$v['domain']}/rq_order.html?type={$v['goods_type']}">点击进入</a></td>
+                    {else}
+                    <td><a target="_blank" href="http://{$v['domain']}/index.php?m=Home&c=Goods&a=detail&id={$v['_id']}">点击进入</a></td>
+                    {/if}
+                    <td>{floatval($v['num'])}</a></td>
+                    <td>{floatval($v['min_order_num'])}</a></td>
+                    <td>{$shua_pingtai[$v['shua_pingtai']]}</td>
+                    <td>
+                        <div class="am-btn-group am-btn-group-xs">
+                            <a href="/system/card_edit?pid={$v['project_id']}&id={$v['id']}" type="button" class="am-btn am-btn-xs am-radius"><span class="am-icon-edit"></span>修改
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {/foreach}
+
+
+                </tbody>
+            </table>
+            </div>
+        </form>
+    </div>
+    <div class="am-u-sm-12">
+        <ul class="am-pagination" style="float: left;margin-right: 10px;line-height: 30px;">
+            <li><b>总数：</b>{$list->totalSize}</li>
+        </ul>
+
+    </div>
+
+</div>
+
+
+
+<script>
+    require(['jquery','dialog','amazeui','app','drag','dialog-plus'],function ($,dialog){
+        function zalert(msg,$class,$id) {
+            $class = $class ?$class : 'warning';
+            msg = msg ? msg : '操作有误！';
+            var d = dialog({
+                id:'id2',
+                zIndex:1505,
+                quickClose:true,
+                content: '<span class="am-icon-btn am-'+$class+' am-icon-'+$class+'"></span>　'+msg,
+                onclose:function () {
+                    if($class != "warning"){
+                        window.location.reload();
+                    }
+                }
+            }).show();
+            setTimeout(function () {
+                d.close().remove();
+            }, 1000);
+
+        }
+        function zalertCheck(msg,obj,$class,$id) {
+            var $id = $(obj).attr('_id');
+            $class = $class ?$class : 'warning';
+            msg = msg ? msg : '操作有误！';
+            var d = dialog({
+                id:'id2',
+                //quickClose:true,
+                content: '<span class="am-icon-btn am-'+$class+' am-icon-'+$class+'"></span>　'+msg
+                ,title:'提示'
+                ,width:300
+                ,padding:'20px 50px 20px 10px',
+                ok:function () {
+
+                    $.ajax({
+                        'type':'post',
+                        'url':'/system/card_change',
+                        'data':{ 'card_id':$id,'pid':{$_GET["pid"]}},
+                        'dataType':'json',
+                        'success':function (ret) {
+                            if(ret.code == 1){
+                                zalert(ret.code_str,'icon-check am-success',$id);
+                            }else{
+                                zalert(ret.code_str,"",$id);
+                            }
+                        },'error':function (err) {
+                            console.log(err);
+                        }
+                    });
+                },
+                cancel:function () {
+
+                },okValue: '确定',
+
+                // 取消按钮文本
+                cancelValue: '取消',
+            }).show();
+        }
+        $('.use_status').on('click',function () {
+            if($(this).attr('status') == "1"){
+                zalert("当前卡密正在使用中。","");
+            }
+            zalertCheck("确定要切换使用这张卡密吗？",$(this),'');
+        })
+    });
+</script>

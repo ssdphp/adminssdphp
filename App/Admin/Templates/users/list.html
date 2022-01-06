@@ -1,0 +1,341 @@
+
+<div class="row">
+    <div class="col-xs-12">
+
+        <div class="table-header">
+            用户管理中心
+        </div>
+
+        <!-- div.table-responsive -->
+
+        <!-- div.dataTables_borderWrap -->
+        <div>
+            <div id="dynamic-table_wrapper" class="dataTables_wrapper form-inline no-footer">
+                <div class="row">
+                    <form action="?" method="get">
+                    <div class="space-10"></div>
+                    <ul class="nav nav-pills">
+                        <li><h5>查询条件:</h5></li>
+                        <li>
+                            <input type="search" name="id" class="form-control" placeholder="用户ID" aria-controls="dynamic-table" value="{{$_GET['id']??''}}">
+                        </li>
+                        <li>
+                            <div class="col-xs-8 col-sm-11">
+                                <div class="input-group">
+                                    <input class="form-control date-picker" id="id-date-picker-1" name="create_time" value="{{$_GET['create_time']??''}}" autocomplete="off" placeholder="注册时间" type="text" data-date-format="dd-mm-yyyy">
+                                    <span class="input-group-addon">
+										<i class="fa fa-calendar bigger-110"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <select class="form-control" name="vip_rank">
+                                <option value="-1">
+                                    选择成员类型
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {{foreach($vip_rank as $k=>$v)}}
+                                {{$class=$_GET['vip_rank']==$k?'selected':''}}
+                                <option {{$class}} value="{{$k}}">类型：{{$v}}</option>
+                                {{/foreach}}
+                            </select>
+                        </li>
+                        <li>
+                            <select class="form-control" name="login_type">
+                                <option value="0">
+                                    选择登录方式
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {{foreach($login_type as $k=>$v)}}
+                                {{$class=$_GET['login_type']==$k?'selected':''}}
+                                <option {{$class}} value="{{$k}}">类型：{{$v}}</option>
+                                {{/foreach}}
+                            </select>
+                        </li>
+                        <li>
+                            <select class="form-control" name="os">
+                                <option value="-1">
+                                    选择手机系统
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {{foreach($os as $k=>$v)}}
+                                {{$class=$_GET['os']==$k?'selected':''}}
+                                <option {{$class}} value="{{$k}}">类型：{{$v}}</option>
+                                {{/foreach}}
+                            </select>
+                        </li>
+                        <li>
+                            <select class="form-control" name="did_type">
+                                <option value="0">
+                                    选择渠道
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                {{foreach($did_type as $k=>$v)}}
+                                {{$class=$_GET['did_type']==$k?'selected':''}}
+                                <option {{$class}} value="{{$k}}">类型：{{$v}}</option>
+                                {{/foreach}}
+                            </select>
+                        </li>
+                        <li>
+                            <select class="form-control" name="did">
+                                <option value="">
+                                    选择详细渠道来源
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </option>
+                                <optgroup label="安卓">
+                                    {{$did_index=array()}}
+                                    {{foreach($ditch_list as $k=>$v)}}
+                                    {{$did_index[$v['did']]=$v}}
+                                    {{if($v['os']==1)}}
+                                    {{$class=$_GET['did']==$v['did']?'selected':''}}
+                                    <option {{$class}} value="{{$v['did']}}">渠道：{{$v['d_name']}}</option>
+                                    {{/if}}
+                                    {{/foreach}}
+                                </optgroup>
+                                <optgroup label="苹果">
+                                    {{foreach($ditch_list as $k=>$v)}}
+                                    {{if($v['os']==2)}}
+                                    {{$class=$_GET['did']==$v['did']?'selected':''}}
+                                    <option {{$class}} value="{{$v['did']}}">渠道：{{$v['d_name']}}</option>
+                                    {{/if}}
+                                    {{/foreach}}
+                                </optgroup>
+                            </select>
+                        </li>
+                    </ul>
+                    <div class="space-10"></div>
+                    <ul class="nav nav-pills">
+                        <li style="margin-left: 64px;">
+                            <input type="submit" value="查询" class="btn btn-primary btn-round">
+                        </li>
+                    </ul>
+                    </form>
+                </div>
+                <table id="dynamic-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dynamic-table_info">
+                    <thead>
+                        <th class="hidden-480">ID</th>
+                        <th>昵称</th>
+                        <th>注册方式</th>
+                        <th class="hidden-480">系统</th>
+                        <th class="hidden-480">渠道</th>
+                        <th>状态</th>
+                        <th>VIP过期时间</th>
+                        <th class="hidden-480">注册时间</th>
+                        <th class="hidden-480">注册端口</th>
+                        <th class="hidden-480">最后一次登录IP</th>
+                        <th  class="hidden-480">操作菜单</th>
+                    </thead>
+
+                    <tbody>
+                    {{foreach($list->items as $v)}}
+                    <tr role="row" id="tr-{{$v['id']}}">
+                        <td class="hidden-480">{{$v['id']}}</td>
+                        <td>{{$v['wx_name']}}</td>
+                        <td  class="hidden-480">
+                            <i class="menu-icon fa fa-wechat {{echo $v['login_type']==1?'green':'grey'}}"></i>
+                            <i class="menu-icon fa fa-apple {{echo $v['login_type']==2?'green':'grey'}}"></i>
+                        </td>
+                        <td class="hidden-480">{{$os[$v['os']]}}</td>
+                        <td class="hidden-480">{{$v['did']}}</td>
+                        <td data-id="{{$v['id']}}">
+                            <span class="{{$status[$v['status']]['color']}}">
+                                {{$status[$v['status']]['title']??""}}
+                            </span>
+                        </td>
+                        <td class="hidden-480">
+                            {{echo $v['vip_expire_time']?date("Y-m-d H:i",$v['vip_expire_time']):"--"}}
+                        </td>
+                        <td class="hidden-480">
+                            {{echo $v['create_time']?date("Y-m-d H:i",$v['create_time']):"--"}}
+                        </td>
+                        <td class="hidden-480">
+                            {{$v['regprot']}}
+                        </td>
+                        <td class="hidden-480">
+                            {{$v['last_login_ip']}}
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-white btn-default btn-xs btn-round"><i class="ace-icon glyphicon glyphicon-align-justify"></i>
+                                    请选择
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dLabel">
+                                    <li><a href="/users/detail?id={{$v['id']}}" target="_blank">查看</a></li>
+                                    <li><a href="javascript:;" hid="{{$v['id']}}" vip_time="{{$v['vip_expire_time']}}" class="vip_rank">会员时间</a></li>
+                                    <li><a href="/users/login_log?uid={{$v['id']}}" target="_blank">登录日志</a></li>
+                                    <li><a href="javascript:;" d="{{$v['id']}}" class="c_status">账号状态</a></li>
+                                    <li><a href="/users/vip_list?uid={{$v['id']}}" >下单记录</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/foreach}}
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="dataTables_paginate paging_simple_numbers" id="dynamic-table_paginate">
+                            <ul class="pagination">
+                                {{$page}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="Label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title addtitle">更改用户状态</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form1">
+                    <label><input type="radio" name="status" value="1" checked class="radius" placeholder=""/> 正常</label>&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="status" value="2" class="radius" placeholder=""/> 禁用</label>&nbsp;&nbsp;&nbsp;
+                    <label><input type="radio" name="status" value="3" class="radius" placeholder=""/> 禁止发动态</label>&nbsp;&nbsp;&nbsp;
+                    <input type="hidden" name="id" value="0">
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-round btn-sm" data-dismiss="modal">取消</button>
+                <button type="button"  id="updata_status" class="btn btn-primary btn-round btn-sm">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="vipModal" tabindex="-1" role="dialog" aria-labelledby="Label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title addtitle">更改会员时间</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form4">
+                    <div class="input-group">
+                        <input class="form-control date-picker" name="vip_expire_time"
+                               value="{{$_GET['vip_expire_time']??''}}" autocomplete="off"
+                               placeholder="会员时间" type="text" data-date-format="dd-mm-yyyy">
+                        <span class="input-group-addon">
+										<i class="fa fa-calendar bigger-110"></i>
+                                    </span>
+                        <input type="hidden" name="id" value="0">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-round btn-sm" data-dismiss="modal">取消</button>
+                <a href="javascript:location.reload();">
+                    <button type="button" id="vip_rank" class="btn btn-primary btn-round btn-sm">保存</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<block name="content">
+    <script>
+
+        $(function () {
+
+            $(".c_status").on('click',function () {
+                $('#statusModal').modal('toggle');
+                var id = $(this).attr('d');
+                $('#statusModal').find('input[name="id"]').val(id);
+
+            });
+
+
+            $('#updata_status').on('click',function () {
+
+                var status = $('#statusModal').find('input[name="status"]').val();
+
+
+                if(!status){
+                    alertify.error("请选择状态");
+                    return ;
+                }
+
+                $.ajax({
+                    type:"post",
+                    url:"/users/updata_status",
+                    data:$('#form1').serialize(),
+                    success:function (ret) {
+                        if(ret.code==1){
+                            var div=document.querySelector("td[data-id='"+ret.data.id+"']");
+                            div.style.color="#FF0080";
+                            $("td[data-id='"+ret.data.id+"']").html(ret.data.status);
+                            alertify.success(ret.code_str);
+                        }else{
+                            alertify.error(ret.code_str);
+                        }
+                    }
+                })
+            });
+
+            $(".vip_rank").on('click', function () {
+                $('#vipModal').modal('toggle');
+                var id = $(this).attr('hid');
+                var vip_time = $(this).attr('vip_time');
+                $('#vipModal').find('input[name="id"]').val(id);
+                //var date = new Date(vip_time);
+                console.log(vip_time);
+                if (vip_time > 0) {
+                    var date = new Date(vip_time * 1000);
+                    Y = date.getFullYear() + '-';
+                    M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                    D = date.getDate();
+                    $('#vipModal').find('input[name="vip_expire_time"]').val(Y + M + D);
+                }else{
+                    $('#vipModal').find('input[name="vip_expire_time"]').val('');
+                }
+
+
+            });
+
+
+            $('#vip_rank').on('click', function () {
+
+                var vip_rank = $('#vipModal').find('input[name="vip_expire_time"]').val();
+
+
+                if (!vip_rank) {
+                    alertify.error("请选择日期");
+                    return;
+                }
+
+                $.ajax({
+                    type: "post",
+                    url: "/users/updata_user_vip",
+                    data: $('#form4').serialize(),
+                    success: function (ret) {
+                        if (ret.code == 1) {
+                            alertify.success(ret.code_str);
+                        } else {
+                            alertify.error(ret.code_str);
+                        }
+                    }
+                })
+            });
+
+
+            $('.date-picker').datepicker({
+                language: "zh-CN",
+                autoclose: true,
+                format: "yyyy-mm-dd",
+                todayHighlight: true
+            })
+        })
+    </script>
+
+</block>

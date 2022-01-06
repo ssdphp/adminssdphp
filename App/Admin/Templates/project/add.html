@@ -1,0 +1,171 @@
+
+<div class="row">
+
+    <div class="col-sm-12">
+
+        <div class="card">
+            <div class="card-header">
+                <div class="nav">
+                    <a  class="btn btn-outline-primary active" href="#form1" data-toggle="tab">第一步：填写项目信息</a> &nbsp;&nbsp;
+                    <a  class="btn btn-outline-primary" href="#form2" id="click_next" data-toggle="tab">第二步：填写公众号配置</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="form_sumbit">
+                    <div id="form1"  class="active">
+                        <div class="form-group row">
+                            <label class="col-form-label col-lg-2">项目编码</label>
+                            <div class="col-lg-5">
+                                <input type="text" name="code" placeholder="项目编码" class="form-control" value="{{$info['code']??''}}"  autocomplete="off"  maxlength="200">
+                                <small class="form-text text-danger">*必填</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-lg-2">项目名称</label>
+                            <div class="col-lg-5">
+                                <input type="text" name="name" placeholder="项目名称" class="form-control" value="{{$info['name']??''}}"  autocomplete="off"  maxlength="200">
+                                <small class="form-text text-danger">*必填</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-lg-2">项目状态</label>
+
+                            <div class="col-sm-5 py-2">
+                                {{foreach($status as $k=>$v)}}
+                                {{$c=$k==1?"checked":""}}
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label"><input class="form-check-input" type="radio" {{$c}} name="state" value="{{$k}}">{{$v}}</label>
+                                </div>
+                                {{/foreach}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-lg-2">排序值</label>
+                            <div class="col-lg-5">
+                                <input type="number" name="sort" placeholder="" class="form-control" value="{{$info['sort']??'0'}}" autocomplete="off"  maxlength="200">
+                                <small class="form-text text-muted">数值越大越靠前</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label col-lg-2"></label>
+                            <div class="col-lg-8 py-2">
+                                <button onclick="$('#click_next').click()" class="btn btn-primary"  type="button" >下一步：填写公众号配置</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="form2" class="fade">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <span class="font-weight-bold">公众号基本配置填写</span> <span class="text-danger">*请由专门的管理人员使用此处</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-lg-2">公众号名称</label>
+                                            <div class="col-lg-5">
+                                                <input type="text" name="wx_gzh_name" placeholder="微信公众号申请的名称" class="form-control" value="{{$info['wx_gzh_name']??''}}"  autocomplete="off"  maxlength="200">
+                                                <small class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-lg-2">APPID</label>
+                                            <div class="col-lg-5">
+                                                <input type="text" name="appid" placeholder="公众号开发的APPID" class="form-control" value="{{$info['appid']??''}}"  autocomplete="off"  maxlength="200">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-form-label col-lg-2">SECRET</label>
+
+                                            <div class="col-lg-5">
+                                                <input type="text" class="form-control" placeholder="公众号开发的SECRET" name="secret" value="{{echo !empty($info['secret'])?$info['secret']:''}}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                {{include "project/wxgzh"}}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-lg-8 py-2">
+                                <input type="hidden" value="" name="gzh_menu" id="menu">
+                                <button class="btn btn-primary" type="button" id="submit">
+                                    新增项目
+                                </button>
+                                <button class="btn btn-secondary" type="button" onclick="window.history.back();">
+                                    << 返回
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<block name="content">
+
+
+    <script>
+        window.onbeforeunload=function(e){
+            // var e = window.event||e;
+            // e.returnValue=("确定离开当前页面吗？");
+        }
+        $(function(){
+
+            $('#submit').on('click',function () {
+                let info = getMenuList();
+                $('#menu').val(JSON.stringify(info))
+                if($('input[name="code"]').val() == ""){
+                    alertify.error("请填写项目编码");
+                    return ;
+                }
+                if($('input[name="name"]').val() == ""){
+                    alertify.error("请填写项目编码");
+                    return ;
+                }
+                if($('input[name="wx_gzh_name"]').val() == ""){
+                    alertify.error("请填写绑定的公众号名称");
+                    return ;
+                }
+                if($('input[name="appid"]').val() == ""){
+                    alertify.error("请填写公众号APPID");
+                    return ;
+                }
+                if($('input[name="secret"]').val() == ""){
+                    alertify.error("请填写公众号SECRET");
+                    return ;
+                }
+                $('#submit').text("正在保存...")
+                $.ajax({
+                    'type':'post',
+                    'url':'/project/add',
+                    'data':$('form').serialize(),
+                    'dataType':'json',
+                    'success':function (ret) {
+                        if(ret.code == 1){
+                            alertify.success(ret.code_str);
+                        }else{
+                            alertify.error(ret.code_str);
+                        }
+                        $('#submit').text("保存管理员")
+                    },'error':function (err) {
+                        console.log(err);
+                        $('#submit').text("保存管理员")
+                    }
+                });
+
+
+            });
+        });
+    </script>
+
+</block>
+

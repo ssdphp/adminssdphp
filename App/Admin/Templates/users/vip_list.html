@@ -1,0 +1,154 @@
+<div class="row">
+    <div class="col-xs-12">
+
+        <div class="table-header">
+            用户开团记录
+        </div>
+
+        <!-- div.table-responsive -->
+
+        <!-- div.dataTables_borderWrap -->
+        <div>
+            <div id="dynamic-table_wrapper" class="dataTables_wrapper form-inline no-footer">
+                <div class="row">
+
+                    <form action="?" method="get">
+                        <div class="space-10"></div>
+                        <ul class="nav nav-pills">
+                            <li><h5>查询条件:</h5></li>
+                            <li>
+                                <input type="search" name="uid" class="form-control" placeholder="用户ID" aria-controls="dynamic-table" value="{{$_GET['uid']??''}}">
+                            </li>
+                            <li>
+                                <select class="form-control" name="os">
+                                    <option value="0">支付来源</option>
+                                    {{foreach($os as $k=>$v)}}
+                                    {{$class=$_GET['os']==$k?'selected':''}}
+                                    <option {{$class}} value="{{$k}}">{{$v}}</option>
+                                    {{/foreach}}
+                                </select>
+                            </li>
+                            <li>
+                                <select class="form-control" name="pay_status">
+                                    <option value="-1">支付状态</option>
+                                    {{foreach($pay_status as $k=>$v)}}
+                                    {{$class=$_GET['pay_status']==$k?'selected':''}}
+                                    <option {{$class}} value="{{$k}}">{{$v}}</option>
+                                    {{/foreach}}
+                                </select>
+                            </li>
+                            <li>
+                                <select class="form-control" name="pay_type">
+                                    <option value="0">支付类型</option>
+
+                                    {{foreach($pay_type as $k=>$v)}}
+
+                                    {{$class=$_GET['pay_type']==$k?'selected':''}}
+                                    <option {{$class}} value="{{$k}}">{{$v}}</option>
+
+                                    {{/foreach}}
+
+
+                                </select>
+
+
+                            </li>
+                            <li>
+                                <div class="input-group input-daterange " id="date-picker">
+                                    <input type="text" class="form-control no-margin-right" value="{{echo $_GET['time_start']??date('Y-m-d')}}" name="time_start" />
+                                    <span class="input-group-addon no-margin-right">to</span>
+                                    <input type="text" value="{{echo $_GET['time_end']??date('Y-m-d')}}" class="form-control no-margin-left" name="time_end" />
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="space-10"></div>
+                        <ul class="nav nav-pills">
+                            <li style="margin-left: 64px;">
+                                <input type="submit" value="查询" class="btn btn-primary btn-round">
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+                <table id="dynamic-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dynamic-table_info">
+                    <thead>
+                    <th class="table-id">ID</th>
+                    <th class="table-id">订单ID</th>
+                    <th class="table-id">用户信息</th>
+                    <th class="table-title">产品名称</th>
+                    <th class="table-title">产品价格(元)</th>
+                    <th class="table-title">支付金额(元)</th>
+                    <th class="table-title">支付类型</th>
+                    <th class="table-set">支付状态</th>
+                    <th class="table-set">支付来源</th>
+                    <th class="table-set">创建时间</th>
+                    </thead>
+                    <tbody>
+                    {{foreach($list->items as $v)}}
+                    <tr role="row" id="tr-{{$v['id']}}">
+                        <td>{{$v['id']}}</td>
+                        <td>{{$v['order_id']}}</td>
+                        <td><a href="/users/list?id={{$v['uid']}}&addtime=" target="_blank" title="查看用户信息">查看用户({{$v['uid']}})</a></td>
+                        <td>{{$v['p_title']}}</td>
+                        <td>{{$v['p_price']}}</td>
+                        <td>{{$v['pay_amt']}}</td>
+                        <td>
+                            {{if(!empty($v['pay_type']))}}
+                            {{echo $pay_type[$v['pay_type']]}}
+                            {{else}}
+                            未知
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{if($v['pay_status']==0)}}
+                            <span style="color: red;">{{echo $pay_status[$v['pay_status']]}}</span>
+                            {{else}}
+                            <span style="color: seagreen;">{{echo $pay_status[$v['pay_status']]}}</span>
+                            {{/if}}
+                        </td>
+                        <td>{{echo $os[$v['os']]}}</td>
+                        <td>{{echo !empty($v['create_time'])?date('Y-m-d H:i:s',$v['create_time']):'--'}}</td>
+                    </tr>
+                    {{/foreach}}
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="dataTables_info" id="dynamic-table_info" role="status" aria-live="polite">
+                            总数：{{$list->totalSize}}
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="dataTables_paginate paging_simple_numbers" id="dynamic-table_paginate">
+                            <ul class="pagination">
+                                {{$page}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<block name="content">
+    <script>
+        $(function () {
+
+            $('#date-picker').datepicker({
+                multidate: false,
+                keyboardNavigation: false,
+                forceParse: false,
+                language: "zh-CN",
+                format: "yyyy-mm-dd",
+                todayHighlight: true,
+                beforeShowMonth: function(date){
+                    if (date.getMonth() == 8) {
+                        //return false;
+                    }
+                },
+                toggleActive: true
+            });
+        })
+    </script>
+
+</block>

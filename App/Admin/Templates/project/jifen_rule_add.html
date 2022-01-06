@@ -1,0 +1,118 @@
+<div class="am-g">
+    <div class="am-g">
+        <div class="am-u-md-1"></div>
+        <div class="am-u-md-10">
+            当前业务：
+            <img width="20" src="{$pinfo['icon']}" alt="" align="center">
+            <span style="font-weight: 400;color: red;vertical-align: bottom">{$pinfo['title']}</span>
+        </div>
+    </div>
+    <form class="am-form" id="form1" onsubmit="return false;">
+    <div class="am-tabs am-margin" data-am-tabs >
+        <input type="hidden" name="project_id" value="{echo !empty($pinfo['id'])?$pinfo['id']:'0'}">
+        <input type="hidden" name="id" value="{echo !empty($info['id'])?$info['id']:'0'}">
+        <div class="am-g am-margin-top">
+            <div class="am-u-md-2 am-text-right">需要积分的数量</div>
+            <div class="am-u-md-4">
+                <input type="text" placeholder="" name="jifen_num" value="{echo !empty($info['jifen_num'])?$info['jifen_num']:''}" class="am-input-sm">
+            </div>
+            <div class="am-u-md-6">*必填，切勿乱填.</div>
+        </div>
+
+        <div class="am-g am-margin-top">
+            <div class="am-u-md-2 am-text-right">积分兑换的赞量</div>
+            <div class="am-u-md-2">
+                <input type="text" placeholder="" errmsg="" name="order_num" value="{echo !empty($info['order_num'])?$info['order_num']:'0'}" class="am-input-sm">
+
+            </div>
+            <div class="am-u-md-6 red"></div>
+        </div>
+        <div class="am-g am-margin-top">
+            <div class="am-u-md-2 am-text-right">单位</div>
+            <div class="am-u-md-2">
+                <input type="text" placeholder="" errmsg="" name="unit" value="{echo !empty($info['unit'])?$info['unit']:'赞'}" class="am-input-sm">
+
+            </div>
+            <div class="am-u-md-6 red">单位</div>
+        </div>
+
+
+        <div class="am-g am-margin-top">
+            <div class="am-u-md-2 am-text-right">使用状态</div>
+            <div class="am-u-md-4">
+                {foreach($status as $k=>$v)}
+                {$c = (!empty($info['status'])&&$info['status']==$k)?'checked':''}
+                {$b = (empty($info['status'])&&1==$k)?'checked':''}
+                <label class="am-radio-inline">
+                    <input type="radio" name="status" {$c}{$b} value="{$k}"> {$v}
+                </label>
+                {/foreach}
+
+            </div>
+            <div class="am-u-md-6"></div>
+        </div>
+
+        <div class="am-margin am-g am-margin-top">
+            <div class="am-u-md-2"></div>
+            <div class="am-u-md-10 am-text-left">
+
+                <button type="button" id="submit" class="am-btn am-btn-primary am-radius">提交保存</button>
+                <button type="button" onclick="window.history.back()" class="am-btn am-btn-danger am-radius"><< 返回</button>
+            </div>
+        </div>
+    </div>
+
+    </form>
+</div>
+<script>
+    require(['jquery',
+                'dialog',
+                'upload',
+                'amazeui',
+                'app',
+                'drag'
+            ],function ($,dialog,upload){
+
+        function zalert(msg,$class) {
+            $class = $class ?$class : 'warning';
+            msg = msg ? msg : '操作有误！';
+            var d = dialog({
+                id:'id2',
+                zIndex:1505,
+                quickClose:true,
+                content: '<span class="am-icon-btn am-'+$class+' am-icon-'+$class+'"></span>　'+msg
+            }).show();
+        }
+
+
+        $('#submit').on('click',function () {
+
+            if($('input[name="jifen_num"]').val() == ""){
+                zalert('需要积分的数量');
+                return ;
+            }
+            if($('input[name="order_num"]').val() == ""){
+                zalert('积分兑换的赞量');
+                return ;
+            }
+            $.ajax({
+                'type':'post',
+                'url':'/project/jifen_rule_{echo !empty($info["id"])?"edit":"add"}',
+                'data':$('#form1').serialize(),
+                'dataType':'json',
+                'success':function (ret) {
+                    if(ret.code == 1){
+                        zalert(ret.code_str,'icon-check am-success');
+                    }else{
+                        zalert(ret.code_str);
+                    }
+                },'error':function (err) {
+                    console.log(err);
+                }
+            });
+
+
+        });
+    });
+</script>
+
