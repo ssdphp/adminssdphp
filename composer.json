@@ -1,0 +1,22 @@
+{
+    "name": "ssdphp/adminssdphp",
+    "description": "composer create-project ssdphp/adminssdphp projectname",
+    "keywords": ["php", "framework", "ssdphp"],
+    "homepage": "https://github.com/ssdphp/adminssdphp",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ssdphp",
+            "email": "ssdphp@ssdphp.com",
+            "homepage": "https://github.com/ssdphp"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "ssdphp/ssdphp": "dev-master"
+    },
+    "config": {
+        "preferred-install": "dist"
+    }
+}

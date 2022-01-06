@@ -1,0 +1,153 @@
+<div class="row">
+
+    <div class="col-sm-12">
+
+        <div class="card">
+            <div class="card-header">
+                <p class="card-text">修改商家信息</p>
+            </div>
+            <div class="card-body">
+                <form id="form1">
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">商家名称</label>
+                        <div class="col-lg-5">
+                            <input type="text" name="name" placeholder="商家名称" class="form-control"
+                                   value="{{echo !empty($info['name'])?$info['name']:''}}" autocomplete="off" maxlength="200">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">所属项目</label>
+
+                        <div class="col-lg-3">
+                            <select class="form-control" name="department_id">
+                                <option value="0">请选择一个项目</option>
+                                {{foreach($project as $k=>$v)}}
+                                {{$s=$v["id"]==$info['department_id']?"selected":""}}
+                                <option {{$s}} value="{{$v['id']}}">{{$v["name"]}}</option>
+                                {{/foreach}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">所属业态</label>
+
+                        <div class="col-lg-8 py-2">
+
+                            {{foreach($industry as $k=>$v)}}
+
+                            <div class="form-check form-check-inline">
+
+                                <label class="form-check-label"><input class="form-check-input" type="checkbox" name="industry_id[]" value="{{$v['id']}}">{{$v["name"]}}</label>
+                            </div>
+                            {{/foreach}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">联系人昵称</label>
+                        <div class="col-lg-5">
+                            <input type="text" name="contacts" placeholder="联系人昵称" class="form-control"
+                                   value="{{echo !empty($info['contacts'])?$info['contacts']:''}}" autocomplete="off" maxlength="200">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">联系人电话</label>
+                        <div class="col-lg-5">
+                            <input type="text" name="phone" placeholder="联系人电话" class="form-control"
+                                   value="{{echo !empty($info['phone'])?$info['phone']:''}}" autocomplete="off" maxlength="200">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">商家状态</label>
+
+                        <div class="col-sm-5 py-2">
+                            {{foreach($state as $k=>$v)}}
+                            {{$c=$k==$info['state']?"checked":""}}
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input class="form-check-input" type="radio" {{$c}} name="state" value="{{$k}}">{{$v}}</label>
+                            </div>
+                            {{/foreach}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">版本号</label>
+                        <div class="col-lg-5">
+                            <input type="text" name="version" placeholder="版本号" class="form-control"
+                                   value="{{echo !empty($info['version'])?$info['version']:''}}" autocomplete="off" maxlength="200">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-8 py-2">
+                            <input type="hidden" value="{{$info['id']}}" name="id">
+                            <button class="btn btn-primary" type="button" id="submit">
+                                修改商家
+                            </button>
+                            <button class="btn btn-secondary" type="button" onclick="window.history.back();">
+                                << 返回
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<block name="content">
+
+
+    <script>
+        window.onbeforeunload = function (e) {
+            // var e = window.event||e;
+            // e.returnValue=("确定离开当前页面吗？");
+        }
+        $(function () {
+
+            $('#submit').on('click', function () {
+                if ($('input[name="name"]').val() == "") {
+                    alertify.error("请填写商家名称");
+                    return;
+                }
+                if ($('input[name="department_id"]').val() == "") {
+                    alertify.error("请选择项目");
+                    return;
+                }
+                //if ($('input[name="industry_id"]').val() == "") {
+                //    alertify.error("请选择业态");
+                //    return;
+                //}
+                if ($('input[name="contacts"]').val() == "") {
+                    alertify.error("请填写联系人");
+                    return;
+                }
+                if ($('input[name="phone"]').val() == "") {
+                    alertify.error("请填写联系电话");
+                    return;
+                }
+                $('#submit').text("正在保存...")
+                $.ajax({
+                    'type': 'post',
+                    'url': '/business/edit',
+                    'data': $('form').serialize(),
+                    'dataType': 'json',
+                    'success': function (ret) {
+                        if (ret.code == 1) {
+                            alertify.success(ret.code_str);
+                        } else {
+                            alertify.error(ret.code_str);
+                        }
+                        $('#submit').text("保存管理员")
+                    }, 'error': function (err) {
+                        console.log(err);
+                        $('#submit').text("保存管理员")
+                    }
+                });
+
+
+            });
+        });
+    </script>
+
+</block>

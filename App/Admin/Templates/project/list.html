@@ -1,0 +1,183 @@
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="card card-table">
+            <div class="card-header">
+                <a href="/project/add" type="button" class="btn btn-primary btn-bold">
+                    <i class="fa fa-plus bigger-110 blue"></i>
+                    新增项目
+                </a>
+            </div>
+            <div class="card-body">
+                <div class='table-responsive'>
+                    <table class="table table-bordered">
+                        <thead>
+                        <th class="text-nowrap">项目ID</th>
+                        <th class="text-nowrap">项目编码</th>
+                        <th class="text-nowrap">项目名称</th>
+                        <th class="text-nowrap">业态数量</th>
+                        <th class="text-nowrap">商家数量</th>
+                        <th class="text-nowrap">微信公众号配置</th>
+                        <th class="text-nowrap">状态</th>
+                        <th class="text-nowrap">创建时间</th>
+                        <th class="text-nowrap">操作</th>
+                        </thead>
+                        <tbody>
+
+                        {{foreach($list as $v)}}
+                        <tr>
+                            <td class="text-nowrap">{{$v['id']}}</td>
+                            <td class="text-nowrap">{{$v['code']}}</td>
+                            <td class="text-nowrap">{{$v['name']}}</td>
+                            <td class="text-nowrap text-info">0</td>
+                            <td class="text-nowrap text-danger">12</td>
+                            <td class="text-nowrap">
+                                <a href="javascript:;" data-appid="{{$v['appid']}}" data-secret="{{$v['secret']}}" data-gzh_name="{{$v['wx_gzh_name']}}" class="showWx">查看</a>
+                            </td>
+                            <td class="text-nowrap">
+                                <span>{{echo $v['state']==1?"正常":"禁用"}}</span>
+                            </td>
+                            <td class="text-nowrap">{{echo !empty($v['create_time'])?date('Y-m-d H:i',$v['create_time']):'--'}}</td>
+                            <td class="text-nowrap">
+                                <div class="btn-group" role="group" aria-label="Basic example">
+
+                                    <a href="/project/edit?id={{$v['id']}}" class="btn btn-secondary  btn-sm" data-rel="tooltip" title="修改" data-original-title="Edit">
+                                        <i class="ace-icon fa fa-pencil-square-o bigger-120"></i> 修改
+                                    </a>
+                                    <a href="/project/edit?id={{$v['id']}}" class="btn btn-secondary  btn-sm" data-rel="tooltip" data-original-title="Edit">
+                                        <i class="ace-icon fa fa-pencil-square-o bigger-120"></i> 业态管理
+                                    </a>
+                                    <a href="/project/edit?id={{$v['id']}}" class="btn btn-secondary  btn-sm" data-rel="tooltip" data-original-title="Edit">
+                                        <i class="ace-icon fa fa-pencil-square-o bigger-120"></i> 商家管理
+                                    </a>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {{/foreach}}
+                        <tr>
+                            <td colspan="7">
+                                <ul class="pagination">
+                                    {{$page}}
+                                </ul>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal" tabindex="-1" id="wxcfgModal">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">公众号密钥配置</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body d-flex flex-column align-content-center">
+
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">公众号</label>
+                    <div class="col-sm-9 gzh_name"></div>
+                </div>
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">APPID</label>
+                    <div class="col-sm-9 appid"></div>
+                </div>
+                <div class="col-sm-12 row py-2">
+                    <label class="col-sm-3 font-weight-bold">SECRET</label>
+                    <div class="col-sm-9 secret"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="craete_gzh_menu">生成公众号菜单</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<block name="content">
+    <script>
+
+        $('.showWx').on('click',function () {
+
+            $('#wxcfgModal').modal("show")
+            $('#wxcfgModal .modal-body .appid').html($(this).data('appid'))
+            $('#wxcfgModal .modal-body .secret').html($(this).data('secret'))
+            $('#wxcfgModal .modal-body .gzh_name').html($(this).data('gzh_name'))
+
+        })
+        $('#craete_gzh_menu').on('click',function () {
+
+            $('#wxcfgModal').modal("hide")
+            var gname = $('#wxcfgModal .modal-body .gzh_name').html()
+
+            alertify.confirm().setting({
+                'labels':{ok:'确认生成', cancel:'关闭'},
+                'title':"提示",
+                'message': '确定要生成公众号的菜单吗？确定后，将会自动更新微信公众号['+gname+']的菜单' ,
+                'onok': function(){
+                    $.ajax({
+                        'type':'post',
+                        'url':'/project/gzh_menu_create',
+                        'data':{'appid':$('#wxcfgModal .modal-body .appid').html()},
+                        'dataType':'json',
+                        'success':function (ret) {
+                            if(ret.code == 1){
+                                alertify.success(ret.code_str,3,function () {
+                                    location.reload()
+                                })
+                            }else{
+                                alertify.error(ret.code_str)
+                            }
+                        },'error':function (err) {
+                            alertify.error("网络异常，请稍后再试")
+                        }
+                    });
+                }
+            }).show();
+        })
+
+        $('.del').on('click',function () {
+
+            var $id = $(this).data('uid');
+            alertify.confirm().setting({
+                'labels':{ok:'确认删除', cancel:'关闭'},
+                'title':"提示",
+                'message': '确定要删除吗？删除后不可恢复' ,
+                'onok': function(){
+                    $.ajax({
+                        'type':'post',
+                        'url':'/admin/admin_del',
+                        'data':{'uid':$id},
+                        'dataType':'json',
+                        'success':function (ret) {
+                            if(ret.code == 1){
+                                alertify.success(ret.code_str,3,function () {
+                                    location.reload()
+                                })
+                            }else{
+                                alertify.error(ret.code_str)
+                            }
+                        },'error':function (err) {
+                            alertify.error("网络异常，请稍后再试")
+                        }
+                    });
+                }
+            }).show();
+
+        })
+    </script>
+</block>
+
+

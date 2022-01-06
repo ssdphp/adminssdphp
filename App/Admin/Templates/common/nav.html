@@ -1,0 +1,14 @@
+<div class="page-header">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3 class="page-title">{{$nav_url[0]["title"]}}</h3>
+            <ul class="breadcrumb">
+                {{foreach($nav_url as $key => $v)}}
+
+                <li class="breadcrumb-item">{{$v['title']}}</li>
+
+                {{/foreach}}
+            </ul>
+        </div>
+    </div>
+</div>

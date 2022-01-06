@@ -1,0 +1,158 @@
+
+<div class="row">
+
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <p class="card-text">添加新的管理员账号</p>
+            </div>
+            <div class="card-body">
+                <form id="form1">
+                    <input type="hidden" name="uid" value="{{echo !empty($info['uid'])?$info['uid']:'0'}}">
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">登录账号</label>
+                        <div class="col-lg-5">
+                            <input type="text" name="username" placeholder="用户登录系统的账号" class="form-control" value="{{echo !empty($info['username'])?$info['username']:''}}"  autocomplete="off"  maxlength="100">
+                            <small class="form-text text-muted"><span class="text-danger">*必填</span> 登录账号为字母数字组合 </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">用户昵称</label>
+
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" placeholder="请输入用户昵称" name="nickname" value="{{echo !empty($info['nickname'])?$info['nickname']:''}}">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">联系电话</label>
+
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" placeholder="请输入联系电话" name="link_phone" value="{{echo !empty($info['link_phone'])?($info['link_phone']):''}}">
+                            <small class="form-text text-danger">*必填</small>
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">密码</label>
+
+                        <div class="col-lg-5">
+                            <input type="text" class="form-control" placeholder="请输入密码" name="password" value="" maxlength="32" minlength="6">
+
+                            <small class="form-text text-danger"><span class="text-danger">*必填</span> 密码为数字，字母，下划线组合6-32个字符</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">所属项目</label>
+
+                        <div class="col-lg-3">
+                            <select class="form-control" name="pid">
+                                <option value="0">请选择一个项目</option>
+                            {{foreach($project as $k=>$v)}}
+                                <option value="{{$v['id']}}">{{$v["name"]}}</option>
+                            {{/foreach}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">拥有角色权限</label>
+
+                        <div class="col-lg-8 py-2">
+
+                            {{foreach($access as $k=>$v)}}
+
+                            <div class="form-check form-check-inline">
+
+                                <label class="form-check-label"><input class="form-check-input" type="checkbox" name="group_id[]" value="{{$v['id']}}">{{$v["title"]}}</label>
+                            </div>
+                            {{/foreach}}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2">账号状态</label>
+
+                        <div class="col-sm-5 py-2">
+                            {{foreach($status as $k=>$v)}}
+                            {{$c = (isset($info['status'])&&$info['status']==$k)?'checked':''}}
+                            {{$b = (empty($info['status'])&&$k==1)?'checked':''}}
+                            <div class="form-check form-check-inline">
+
+                                <label class="form-check-label"><input class="form-check-input" type="radio" {{$c}}{{$b}} name="status" value="{{$k}}">{{$v}}</label>
+                            </div>
+                            {{/foreach}}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label class="col-form-label col-lg-2"></label>
+                        <div class="col-lg-8 py-2">
+                            <button class="btn btn-primary" type="button" id="submit">
+                                添加管理员
+                            </button>
+                            <button class="btn btn-secondary" type="button" onclick="window.history.back();">
+                                << 返回
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<block name="content">
+<script>
+    $(function(){
+
+        $('#submit').on('click',function () {
+
+            if($('input[name="username"]').val() == ""){
+                alertify.error("请填写登录账号");
+                return ;
+            }
+            if($('input[name="nickname"]').val() == ""){
+                alertify.error("请填写账号昵称");
+                return ;
+            }
+            $('#submit').text("正在添加...")
+            $.ajax({
+                'type':'post',
+                'url':'/admin/{{echo !empty($info["uid"])?"admin_edit":"admin_add"}}',
+                'data':$('#form1').serialize(),
+                'dataType':'json',
+                'success':function (ret) {
+                    if(ret.code == 1){
+                        alertify.confirm().setting({
+                            'labels':{ok:'继续添加', cancel:'关闭'},
+                            'title':"提示",
+                            'message': '添加管理员成功，需要继续添加其他管理员吗' ,
+                            'onok': function(){
+                                $('#form1')[0].reset()
+                            },
+                            'oncancel':function () {
+                                window.history.back()
+                            }
+                        }).show();
+                    }else{
+                        alertify.error(ret.code_str);
+                    }
+                    $('#submit').text("添加管理员")
+                },'error':function (err) {
+                    console.log(err);
+                    $('#submit').text("添加管理员")
+                }
+            });
+
+
+        });
+    });
+</script>
+</block>
+
